@@ -1,0 +1,13 @@
+{
+  "//": "The data scripts under scripts/. They run under `node --experimental-strip-types`, which strips types without checking them, and they are deliberately outside the app's tsconfig so a broken tool cannot stop a deploy of working app code. Check them on demand: `pnpm typecheck:scripts`.",
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "allowImportingTsExtensions": false,
+    "noEmit": true,
+    "types": ["node"]
+  },
+  "include": ["scripts/**/*.mts"],
+  "exclude": ["node_modules"]
+}

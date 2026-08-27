@@ -18,6 +18,7 @@
     "build:materials": "node --experimental-strip-types scripts/build-materials.mts",
     "build:gather": "node --env-file-if-exists=.env.local --experimental-strip-types scripts/build-gather-listings.mts",
     "build:icons": "node --experimental-strip-types scripts/build-icons.mts",
+    "typecheck:scripts": "tsc -p tsconfig.scripts.json",
     "build:history": "node --experimental-strip-types scripts/build-history.mts",
     "build:charts": "npm run build:snapshot && npm run build:history"
   },
@@ -27,6 +28,7 @@
     "react-dom": "19.2.8"
   },
   "devDependencies": {
+    "sharp": "^0.35.3",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",

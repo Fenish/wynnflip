@@ -29,7 +29,12 @@ Vercel, from this repo. One environment variable:
 | `WYNNVENTORY_KEY` | Project → Settings → Environment Variables, all three environments |
 
 Node 22 or newer (declared in `engines`). pnpm is the package manager —
-`pnpm-lock.yaml` is the only lockfile, deliberately.
+`pnpm-lock.yaml` is the only lockfile, deliberately, and `packageManager` pins
+the version so CI resolves it without being told.
+
+`scripts/` is outside the app's `tsconfig.json` on purpose: it is build-time
+tooling, and a type error in a data downloader should not stop a deploy of
+working app code. It gets checked on its own with `pnpm typecheck:scripts`.
 
 The page is ISR: `revalidate` is one hour, set in `src/lib/refresh.ts` so the
 page, the price-fetch TTL and the label in the header cannot disagree. Next

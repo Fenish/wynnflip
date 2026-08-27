@@ -34,10 +34,11 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    ".next/dev/types/**/*.ts",
-    "**/*.mts"
+    ".next/dev/types/**/*.ts"
   ],
+  "//": "scripts/ is build-time tooling, not the app. It used to be in this include via **/*.mts, so `next build` type-checked it - and a deploy of working app code died on `Cannot find module 'sharp'`, a library only the icon downloader has ever imported. It is checked by tsconfig.scripts.json instead: `pnpm typecheck:scripts`.",
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "scripts"
   ]
 }
