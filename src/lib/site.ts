@@ -23,3 +23,16 @@ export const SITE_URL = raw.replace(/\/+$/, "");
 
 /** Just the host, for printing. */
 export const SITE_HOST = SITE_URL.replace(/^https?:\/\//, "");
+
+/**
+ * What the site calls itself, in one place.
+ *
+ * Item pages keep these rather than putting the item's name in the title: a
+ * long name pushes the brand out of a tab or a search result, and the card
+ * already says which item it is.
+ */
+export const SITE_NAME = "WynnLytics";
+export const SITE_TITLE =
+  "WynnLytics - Wynncraft trade market prices, ranked by profit";
+export const SITE_DESCRIPTION =
+  "What to buy, kill and gather on the Wynncraft trade market - ranked by what it actually pays.";

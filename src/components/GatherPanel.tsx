@@ -5,7 +5,7 @@ import { when } from "@/lib/format";
 import { profession, stars } from "@/lib/professions";
 import type { GatherRow } from "@/lib/types";
 
-import { Money, Prose, useMoney } from "./Denomination";
+import { Money, Prose } from "./Denomination";
 import { PriceChart } from "./PriceChart";
 import { ProfIcon } from "./ProfIcon";
 import { Slot } from "./Slot";
@@ -28,7 +28,6 @@ export function GatherPanel({
  row: GatherRow;
  onClose?: () => void;
 }) {
- const { money } = useMoney();
  const p = profession(row.profession);
  const speed = gatherSpeed(row.sold);
 

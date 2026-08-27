@@ -82,12 +82,24 @@
     outline-offset: 2px;
   }
 
+  /*
+   * Reduced motion, without flattening every state change.
+   *
+   * The usual blanket reset zeroes `transition-duration` on `*` with
+   * !important, which also kills a 200ms hover fade - feedback that carries no
+   * motion at all and that the setting was never aimed at. What the setting is
+   * for is animation: things that move, repeat, or start on their own.
+   *
+   * So animations stop, and transitions are capped rather than removed. A
+   * change still reads as a change instead of a jump.
+   */
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
     *::after {
       animation-duration: 0.01ms !important;
-      transition-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 200ms !important;
     }
   }
 

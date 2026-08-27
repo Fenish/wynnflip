@@ -37,88 +37,45 @@ const MONEY = "#4fd08a";
 
 export default function Image() {
  return new ImageResponse(
+  /*
+   * Parchment rather than the board's dark ground. In a feed of dark embeds a
+   * light one stops the scroll, and it is the game's own panel colour, so it
+   * reads as Wynncraft rather than as a generic dashboard.
+   */
   <div
    style={{
     width: "100%",
     height: "100%",
     display: "flex",
     flexDirection: "column",
-    background: GROUND,
+    justifyContent: "center",
+    background: PARCH,
+    padding: "0 84px",
     fontFamily: "Plex",
    }}
   >
-   {/* the same carved parchment strip the site's header sits on */}
-   <div style={{ display: "flex", flexDirection: "column" }}>
-    <div style={{ height: 14, background: PARCH }} />
-    <div style={{ height: 5, background: INK }} />
-   </div>
+   {/* eslint-disable-next-line @next/next/no-img-element -- satori */}
+   <img
+    src={`data:image/png;base64,${logo.toString("base64")}`}
+    width={480}
+    height={181}
+    alt=""
+   />
 
    <div
     style={{
-     flex: 1,
      display: "flex",
-     flexDirection: "column",
-     justifyContent: "center",
-     padding: "0 84px",
+     fontFamily: "Hand",
+     fontSize: 54,
+     color: INK,
+     marginTop: 30,
     }}
    >
-    {/* eslint-disable-next-line @next/next/no-img-element -- satori
-              renders a bare img; next/image does not exist in this context. */}
-    <img
-     src={`data:image/png;base64,${logo.toString("base64")}`}
-     width={520}
-     height={196}
-     alt=""
-    />
+    What to buy, kill and gather
+   </div>
 
-    <div
-     style={{
-      display: "flex",
-      fontFamily: "Hand",
-      fontSize: 52,
-      color: PARCH,
-      marginTop: 34,
-     }}
-    >
-     What to buy, kill and gather
-    </div>
-
-    <div
-     style={{
-      display: "flex",
-      fontSize: 30,
-      color: MUTED,
-      marginTop: 14,
-     }}
-    >
-     Every listing on the Wynncraft trade market, ranked by what it actually
-     pays.
-    </div>
-
-    <div
-     style={{
-      display: "flex",
-      alignItems: "center",
-      gap: 18,
-      marginTop: 44,
-     }}
-    >
-     <div
-      style={{
-       display: "flex",
-       background: MONEY,
-       color: GROUND,
-       fontFamily: "PlexBold",
-       fontSize: 26,
-       padding: "12px 26px",
-      }}
-     >
-      {SITE_HOST}
-     </div>
-     <div style={{ display: "flex", fontSize: 24, color: TEXT }}>
-      Free · updates hourly
-     </div>
-    </div>
+   <div style={{ display: "flex", fontSize: 30, color: "#5d4038", marginTop: 12 }}>
+    Every listing on the trade market, ranked by what it pays.
    </div>
   </div>,
   {

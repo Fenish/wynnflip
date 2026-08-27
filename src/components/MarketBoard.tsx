@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { SLOW_BELOW } from "@/lib/advice";
 import { ago } from "@/lib/format";
 import { REVALIDATE_LABEL } from "@/lib/refresh";
+import { pathFor } from "@/lib/share";
 import type { Board, GatherRow } from "@/lib/types";
 
 import { DenomProvider, DenomSwitch, useMoney } from "./Denomination";
@@ -155,26 +156,39 @@ function gatherKey(row: GatherRow) {
  * like against like down a column is the one thing a market list does that
  * prose cannot. The verbs moved into the header and the numbers lined up.
  */
-export function MarketBoard({ data }: { data: Board }) {
+/** Where a shared link lands: which tab, and which row already open. */
+export interface Initial {
+ mode: Mode;
+ /** `name` for flip and farm, `name|tier` for gather. Null if it has gone. */
+ key: string | null;
+}
+
+export function MarketBoard({
+ data,
+ initial,
+}: {
+ data: Board;
+ initial?: Initial;
+}) {
  return (
   <DenomProvider>
-   <Ledger data={data} />
+   <Ledger data={data} initial={initial} />
   </DenomProvider>
  );
 }
 
 /** Everything below the provider, so every figure can read the choice. */
-function Ledger({ data }: { data: Board }) {
- const [mode, setMode] = useState<Mode>("flip");
+function Ledger({ data, initial }: { data: Board; initial?: Initial }) {
+ const [mode, setMode] = useState<Mode>(initial?.mode ?? "flip");
 
  // What the panel is showing. Null still resolves to the top row - the page
  // already decided which move is best, and making someone click to see the
  // reasoning behind a conclusion it exists to have reached is the thing it
  // says it avoids.
- const [chosen, setChosen] = useState<string | null>(null);
+ const [chosen, setChosen] = useState<string | null>(initial?.key ?? null);
  // Whether the panel has taken over the screen. Only a real click sets this,
  // so a default selection never hides the list on a narrow one.
- const [opened, setOpened] = useState(false);
+ const [opened, setOpened] = useState(Boolean(initial?.key));
 
  const [filter, setFilter] = useState<GatherFilter>(NO_FILTER);
 
@@ -233,6 +247,21 @@ function Ledger({ data }: { data: Board }) {
   ? null
   : (rows.find((r) => r.name === chosen) ?? rows[0] ?? null);
  const picked = material ? gatherKey(material) : (row?.name ?? null);
+
+ // Keep the address bar on whatever is open, so the link is always there to
+ // copy without a button asking to be pressed. `replaceState` rather than
+ // `pushState`: reading down a list is not navigation, and turning every row
+ // you glance at into a history entry makes the back button useless.
+ useEffect(() => {
+  const path = material
+   ? pathFor("gather", material.name, material.tier)
+   : row
+     ? pathFor(mode === "farm" ? "farm" : "flip", row.name)
+     : "/";
+  if (window.location.pathname !== path) {
+   window.history.replaceState(null, "", path);
+  }
+ }, [mode, material, row]);
  const empty = gathering ? gather.length === 0 : rows.length === 0;
 
  useEffect(() => {

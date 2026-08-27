@@ -1,7 +1,12 @@
 import type { Metadata, Viewport } from "next";
 import { Architects_Daughter, IBM_Plex_Sans } from "next/font/google";
 
-import { SITE_URL } from "@/lib/site";
+import {
+  SITE_DESCRIPTION,
+  SITE_NAME,
+  SITE_TITLE,
+  SITE_URL,
+} from "@/lib/site";
 
 import "./globals.css";
 
@@ -24,26 +29,16 @@ const architects = Architects_Daughter({
   weight: "400",
 });
 
-const TITLE = "WynnLytics";
-/**
- * The long form is for a search result, where there is room for it and a bare
- * brand name wastes the line. The embeds keep the short one: Discord already
- * prints the site name as an eyebrow directly above the title, so repeating
- * the subject there just makes the card noisier.
- */
-const SEO_TITLE = "WynnLytics - Wynncraft trade market prices, ranked by profit";
-const DESCRIPTION =
-  "What to buy, kill and gather on the Wynncraft trade market - ranked by what it actually pays.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: SEO_TITLE,
-  description: DESCRIPTION,
+  title: SITE_TITLE,
+  description: SITE_DESCRIPTION,
   openGraph: {
     type: "website",
-    siteName: TITLE,
-    title: TITLE,
-    description: DESCRIPTION,
+    siteName: SITE_NAME,
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
     url: "/",
     // the image itself comes from opengraph-image.tsx, which emits og:image,
     // its type and its real dimensions on its own
@@ -55,8 +50,8 @@ export const metadata: Metadata = {
    */
   twitter: {
     card: "summary_large_image",
-    title: TITLE,
-    description: DESCRIPTION,
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
   },
 };
 
