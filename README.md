@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="public/logo.webp" alt="WynnLytics" width="420">
+<img src="public/logo.webp" alt="WynnFlip" width="420">
 
 **What to buy, kill and gather on the Wynncraft trade market — ranked by what it actually pays.**
 

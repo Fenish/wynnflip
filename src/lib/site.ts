@@ -7,7 +7,7 @@
  *
  * `NEXT_PUBLIC_SITE_URL` comes first because Vercel's own variable holds the
  * .vercel.app domain even after a custom one is attached - a link shared from
- * wynnlytics.fenish.dev was unfurling as wynnlytics.vercel.app. Set it in
+ * the custom domain was unfurling as the .vercel.app one. Set it in
  * Project - Settings - Environment Variables and this follows.
  */
 const raw =
@@ -31,8 +31,8 @@ export const SITE_HOST = SITE_URL.replace(/^https?:\/\//, "");
  * long name pushes the brand out of a tab or a search result, and the card
  * already says which item it is.
  */
-export const SITE_NAME = "WynnLytics";
+export const SITE_NAME = "WynnFlip";
 export const SITE_TITLE =
-  "WynnLytics - Wynncraft trade market prices, ranked by profit";
+  "WynnFlip - Wynncraft trade market prices, ranked by profit";
 export const SITE_DESCRIPTION =
   "What to buy, kill and gather on the Wynncraft trade market - ranked by what it actually pays.";

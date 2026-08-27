@@ -117,7 +117,7 @@ export default async function Image({
    ? undefined
    : findBySlug(m === "flip" ? data.flip : data.farm, id, false);
 
- const name = g ? g.name : (i?.name ?? "WynnLytics");
+ const name = g ? g.name : (i?.name ?? "WynnFlip");
  const tier = g ? g.tier : (i?.tier ?? 0);
  const price = g ? g.price : i?.open[0]?.unit;
  const sprite = await spriteFor(g ? g.icon : (i?.icon ?? ""));
@@ -275,7 +275,7 @@ export default async function Image({
    </div>
 
    <div style={{ display: "flex", padding: "0 84px 46px" }}>
-    <Img src={LOGO} w={200} h={75} />
+    <Img src={LOGO} w={200} h={80} />
    </div>
   </div>,
   {

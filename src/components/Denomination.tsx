@@ -22,7 +22,12 @@ import { compact as dollarCompact, money as dollarMoney } from "@/lib/format";
  */
 export type Denom = "number" | "emerald";
 
-const KEY = "wynnlytics:denom";
+/*
+ * Renamed with the project. The old key is not migrated: it holds one boolean
+ * that a reader can set again in a click, and carrying a dead name forward to
+ * avoid that is not worth it.
+ */
+const KEY = "wynnflip:denom";
 
 interface Ctx {
  denom: Denom;

@@ -15,7 +15,7 @@ import { join } from "node:path";
  * same fonts, same ground, same parchment strip, all read from this repo.
  */
 export const alt =
- "WynnLytics - what to buy, kill and gather on the Wynncraft trade market";
+ "WynnFlip - what to buy, kill and gather on the Wynncraft trade market";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -53,7 +53,7 @@ export default function Image() {
    <img
     src={`data:image/png;base64,${logo.toString("base64")}`}
     width={480}
-    height={181}
+    height={192}
     alt=""
    />
 

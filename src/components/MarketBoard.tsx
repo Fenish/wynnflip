@@ -57,7 +57,7 @@ const EMPTY: Record<Mode, { head: string; body: string }> = {
  },
 };
 
-const REPO = "https://github.com/Fenish/wynnlytics";
+const REPO = "https://github.com/Fenish/wynnflip";
 
 /**
  * GitHub's own mark, inlined.
@@ -285,9 +285,9 @@ function Ledger({ data, initial }: { data: Board; initial?: Initial }) {
               asset; next/image would only wrap it. */}
      <img
       src="/logo.webp"
-      alt="WynnLytics"
-      width={117}
-      height={44}
+      alt="WynnFlip"
+      width={120}
+      height={48}
       className="h-9 w-auto sm:h-11"
      />
     </h1>

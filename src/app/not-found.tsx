@@ -41,9 +41,9 @@ export default function NotFound() {
               asset; next/image would only wrap it. */}
      <img
       src="/logo.webp"
-      alt="WynnLytics"
-      width={117}
-      height={44}
+      alt="WynnFlip"
+      width={120}
+      height={48}
       className="h-12 w-auto opacity-70 transition duration-200 ease-out hover:scale-110 hover:opacity-100 sm:h-16"
      />
     </Link>
