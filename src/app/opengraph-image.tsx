@@ -2,7 +2,6 @@ import { ImageResponse } from "next/og";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 
-import { SITE_HOST } from "@/lib/site";
 
 /**
  * The card that unfurls when the link is pasted.
@@ -28,12 +27,8 @@ const [hand, body, bodyBold, logo] = await Promise.all([
  readFile(join(dir, "logo.png")),
 ]);
 
-const GROUND = "#171613";
 const PARCH = "#baaa80";
 const INK = "#412624";
-const TEXT = "#ece7dc";
-const MUTED = "#a49b8a";
-const MONEY = "#4fd08a";
 
 export default function Image() {
  return new ImageResponse(

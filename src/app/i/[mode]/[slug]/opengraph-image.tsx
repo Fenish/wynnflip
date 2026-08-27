@@ -14,7 +14,17 @@ import { findBySlug, MODES, type ShareMode } from "@/lib/share";
  * The item is the subject, so it gets the sprite and the price gets the size;
  * the mark sits in the corner. Everything is read from the same `board()` the
  * page reads, so a shared card cannot quote a number the page disagrees with.
+ *
+ * Cached on the same window as the board, and it has to be. These handlers are
+ * static by default, but reading `params` and pulling live prices makes this
+ * one dynamic - so every crawler hit rebuilt it and Vercel answered
+ * `x-vercel-cache: MISS` every time. A warm rebuild is about 1.5s; a cold one
+ * measured 17s, well past the few seconds an unfurler waits before giving up
+ * and showing no image at all. An hour also means a card can never be older
+ * than the numbers printed on it.
  */
+export const revalidate = 3600;
+
 export const alt = "An item on the Wynncraft trade market";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
@@ -77,8 +87,17 @@ async function spriteFor(icon: string): Promise<string | null> {
  }
 }
 
+/**
+ * A bare `img`, and it has to be.
+ *
+ * The lint rule warns about LCP and bandwidth, neither of which exists here:
+ * this tree is never sent to a browser. Satori walks it on the server to
+ * rasterize a PNG, and it understands a small subset of HTML - `next/image`
+ * emits a srcset, a loader and a wrapper it cannot read, so the card would
+ * come out empty. Every src here is already an inlined data URI besides.
+ */
 const Img = (p: { src: string; w: number; h: number }) => (
- // img; next/image does not exist in this context.
+ // eslint-disable-next-line @next/next/no-img-element
  <img src={p.src} width={p.w} height={p.h} alt="" />
 );
 
