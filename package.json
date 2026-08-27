@@ -1,0 +1,39 @@
+{
+  "name": "wynn",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "build:data": "node --experimental-strip-types scripts/build-data.mts",
+    "typecheck": "tsc --noEmit",
+    "build:snapshot": "node --experimental-strip-types scripts/build-snapshot.mts",
+    "build:listings": "node --env-file-if-exists=.env.local --experimental-strip-types scripts/build-listings.mts",
+    "build:materials": "node --experimental-strip-types scripts/build-materials.mts",
+    "build:gather": "node --env-file-if-exists=.env.local --experimental-strip-types scripts/build-gather-listings.mts",
+    "build:icons": "node --experimental-strip-types scripts/build-icons.mts",
+    "build:history": "node --experimental-strip-types scripts/build-history.mts",
+    "build:charts": "npm run build:snapshot && npm run build:history"
+  },
+  "dependencies": {
+    "next": "16.3.3",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.3.3",
+    "server-only": "^0.0.1",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}

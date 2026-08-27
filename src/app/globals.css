@@ -1,0 +1,180 @@
+@import 'tailwindcss';
+
+/**
+ * Wynncraft's own values, measured from wynncraft.com rather than guessed.
+ *
+ * Their site frames a dark, quiet content area in warm wooden chrome: the
+ * chrome carries the identity, the content stays legible. That is the move
+ * this board needs, because it is a trading screen before it is a themed one.
+ *
+ * The tooltip colours are vanilla Minecraft's. Every Wynncraft player reads
+ * dozens of item tooltips an hour, and a tooltip is already a dense stat
+ * readout - which is why the rows are built as tooltips rather than merely
+ * decorated like them.
+ */
+@theme {
+  /*
+   * The side panel only appears when the table still fits beside it.
+   *
+   * Measured: with the panel at 440px, the flip table needs 719px and gets 584
+   * at Tailwind's default lg (1024px) - a 135px horizontal scroll, the one
+   * thing a table must never do. It clears at 1200. Below this the list runs
+   * full width and a row opens the panel as a drawer, which already worked.
+   */
+  --breakpoint-lg: 1200px;
+
+  /* wynncraft.com body: rgb(23,22,19) - warm, not the blue-slate default */
+  --color-ground: #171613;
+  --color-surface: #1d1b17;
+
+  /* the carved frame, their six-ring box-shadow palette */
+  --color-parch: #baaa80;
+  --color-parch-dim: #8b785b;
+  --color-timber: #624e3c;
+  --color-ink: #412624;
+
+  /* vanilla Minecraft tooltip */
+  --color-tip: #100010;
+  --color-tip-edge: #4b2ea8;
+  --color-tip-edge-dim: #28007f;
+
+  --color-line: #2c2822;
+  --color-line-strong: #464034;
+
+  --color-text: #ece7dc;
+  --color-muted: #a49b8a;
+  /* 5.09:1 on the ground. The tone below this reads as "quieter" but drops
+     under 4.5:1, and every faint thing here is a data column - the age of a
+     sighting, a listing count - not decoration. */
+  --color-faint: #8f8778;
+
+  /* money, and nothing else */
+  --color-money: #4fd08a;
+  --color-loss: #e0697e;
+  --color-caution: #f0a93b;
+
+  /* the game's own rarity ladder, used for ingredient tiers */
+  --color-tier-0: #ffffff;
+  --color-tier-1: #ffff55;
+  --color-tier-2: #ff55ff;
+  --color-tier-3: #55ffff;
+
+  --font-hand: var(--font-architects), ui-rounded, system-ui, sans-serif;
+  --font-sans: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  body {
+    @apply bg-ground text-text antialiased;
+    /* Their stone texture is a 200px tile averaging #121212 with a luma range
+       of only 16-21 - a whisper of grain, not a pattern. Reproduced as tiled
+       SVG turbulence so nothing is hotlinked and nothing has to download. */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  }
+
+  /* Every figure here is read in a column against another figure. */
+  .tnum {
+    font-variant-numeric: tabular-nums;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-parch);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-line-strong) transparent;
+  }
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-line-strong);
+    border: 2px solid var(--color-ground);
+    border-radius: 999px;
+  }
+}
+
+/**
+ * An item tooltip, as the game draws it: near-black violet field, a two-tone
+ * violet edge, hard corners. Wynncraft's own site uses no border radius at
+ * all - roundness there comes from drawn artwork, never from CSS.
+ */
+@utility tip {
+  background: var(--color-tip);
+  /* The game's outer edge is the darker violet, but two pixels of #28007f on a
+     near-black ground reads as no border at all. The lit edge leads and the
+     dark one becomes the seat under it - same two colours, legible order. */
+  border: 1px solid var(--color-tip-edge-dim);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--color-tip-edge) 45%, transparent),
+    0 1px 0 0 rgb(0 0 0 / 0.45);
+}
+
+/** The same object, picked up. */
+
+/**
+ * The carved wooden frame from wynncraft.com, verbatim: six concentric rings
+ * of brown resolving from light to dark. Expensive to look at, so it is spent
+ * once - on the chrome that holds everything else.
+ */
+@utility carved {
+  box-shadow:
+    0 0 0 3px var(--color-parch-dim),
+    0 0 0 5px var(--color-ink),
+    0 0 0 6px var(--color-parch-dim),
+    0 0 0 7px var(--color-timber),
+    0 0 0 9px var(--color-ink),
+    0 0 0 11px rgb(0 0 0 / 0.19);
+}
+
+/** An inventory slot: lit top-left, shadowed bottom-right. */
+@utility slot {
+  display: grid;
+  place-items: center;
+  flex: none;
+  background: #2a261f;
+  border: 2px solid;
+  border-color: #494236 #14120f #14120f #494236;
+}
+
+/**
+ * A hairline halo on every sprite, so the dark ones have a silhouette.
+ *
+ * The sprites run from #3f3b3a (Corruption Shard) to #8eaea3 (Stolen Pearls),
+ * and no flat slot colour serves both: the dark fill loses the dark sprites at
+ * 1.4:1, Minecraft's own slot grey loses the light ones at 1.1:1, and a mid
+ * grey is worse than either. Tracing the edge instead is independent of what
+ * the sprite happens to be - it disappears into a light one and outlines a
+ * dark one.
+ */
+.slot img,
+.slot [role="presentation"] {
+  filter: drop-shadow(0 0 1px rgb(236 231 220 / 0.5));
+}
+
+@utility shimmer {
+  background: linear-gradient(90deg, #221f1a 0%, #2e2a23 50%, #221f1a 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
