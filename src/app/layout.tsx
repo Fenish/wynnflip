@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Architects_Daughter, IBM_Plex_Sans } from "next/font/google";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 import { SITE_URL } from "@/lib/site";
 
@@ -81,6 +82,7 @@ export default function RootLayout({
           scroll or you get two bars and a header that drifts away. */}
       <body className="h-full overflow-hidden" suppressHydrationWarning>
         {children}
+        <SpeedInsights />
       </body>
     </html>
   );
