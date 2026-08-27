@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Architects_Daughter, IBM_Plex_Sans } from "next/font/google";
 
+import { SITE_URL } from "@/lib/site";
+
 import "./globals.css";
 
 // Plex was drawn for technical and data-dense contexts, and its Turkish
@@ -23,26 +25,19 @@ const architects = Architects_Daughter({
 });
 
 const TITLE = "WynnLytics";
+/**
+ * The long form is for a search result, where there is room for it and a bare
+ * brand name wastes the line. The embeds keep the short one: Discord already
+ * prints the site name as an eyebrow directly above the title, so repeating
+ * the subject there just makes the card noisier.
+ */
+const SEO_TITLE = "WynnLytics - Wynncraft trade market prices, ranked by profit";
 const DESCRIPTION =
   "What to buy, kill and gather on the Wynncraft trade market - ranked by what it actually pays.";
 
-/**
- * Where relative URLs in this metadata resolve to.
- *
- * og:image has to be absolute for anything to unfurl it, and only the running
- * deployment knows its own host. Vercel exposes the stable production domain
- * separately from the per-deployment one, so a preview build advertises itself
- * rather than pointing at production.
- */
-const origin = process.env.VERCEL_PROJECT_PRODUCTION_URL
-  ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-  : process.env.VERCEL_URL
-    ? `https://${process.env.VERCEL_URL}`
-    : "http://localhost:3000";
-
 export const metadata: Metadata = {
-  metadataBase: new URL(origin),
-  title: TITLE,
+  metadataBase: new URL(SITE_URL),
+  title: SEO_TITLE,
   description: DESCRIPTION,
   openGraph: {
     type: "website",
@@ -50,21 +45,18 @@ export const metadata: Metadata = {
     title: TITLE,
     description: DESCRIPTION,
     url: "/",
-    images: [
-      { url: "/logo.webp", width: 446, height: 168, alt: TITLE },
-    ],
+    // the image itself comes from opengraph-image.tsx, which emits og:image,
+    // its type and its real dimensions on its own
   },
   /*
-   * `summary` puts the mark in the corner and gives the words the room;
-   * `summary_large_image` would stretch a 446x168 logo across a 1200x630 slot
-   * and letterbox it. The dimensions above let a client hold the space before
-   * the bytes land.
+   * The card is drawn at 1200x630 now, so it can be shown in full rather than
+   * as a corner thumbnail. `summary` was right while the image was the bare
+   * 446x168 mark - at that size a large card is mostly letterbox.
    */
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: TITLE,
     description: DESCRIPTION,
-    images: ["/logo.webp"],
   },
 };
 
