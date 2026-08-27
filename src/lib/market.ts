@@ -1,5 +1,6 @@
 import "server-only";
 
+import { PRICE_TTL_SECONDS } from "./refresh";
 import type { MarketDay } from "./types";
 
 /**
@@ -20,7 +21,7 @@ const VENTORY = "https://www.wynnventory.com/api/trademarket";
 const WMARKET = "https://wynnmarket.com/api";
 const UA = { "User-Agent": "wynn-guide/1.0 (personal use)" };
 
-const PRICE_TTL = 2 * 60 * 60; // matches the page revalidate window
+const PRICE_TTL = PRICE_TTL_SECONDS;
 /**
  * Node's fetch has no default timeout, so a single connection that stalls
  * takes the whole page with it - the board makes hundreds of these calls and

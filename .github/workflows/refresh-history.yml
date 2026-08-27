@@ -1,0 +1,49 @@
+# Price history is daily data, so it is refetched daily.
+#
+# Split from the listing refresh because it is the expensive half: a history
+# call takes about 4.5s against 0.5s for a listing, and there are a few hundred
+# of them. Running it every six hours would be several hundred slow calls for
+# numbers that only change once a day.
+name: Refresh price history
+
+on:
+  schedule:
+    - cron: '41 3 * * *'
+  workflow_dispatch: {}
+
+concurrency:
+  group: refresh-market-data
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  history:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      - name: Fetch history
+        env:
+          WYNNVENTORY_KEY: ${{ secrets.WYNNVENTORY_KEY }}
+        run: pnpm build:charts
+
+      - name: Commit if anything moved
+        run: |
+          git config user.name  'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          if git diff --quiet -- src/data; then
+            echo 'no change'
+            exit 0
+          fi
+          git add src/data
+          git commit -m 'data: refresh price history'
+          git push

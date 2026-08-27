@@ -1,0 +1,56 @@
+# Keep the committed listing snapshots from going stale.
+#
+# The live feed looks after itself: the page is ISR and regenerates hourly, and
+# opening an item re-checks that item. What does NOT refresh on its own is the
+# fallback under src/data/ - those files are baked into the deploy, so on a
+# quiet night when WynnVentory returns nothing the board falls back to whatever
+# was committed, however old that is.
+#
+# So: refetch on a schedule, commit only if something moved, and let the push
+# trigger a Vercel redeploy. Both listing scripts merge rather than overwrite,
+# so a run that lands at a quiet hour adds what it finds and keeps the rest.
+name: Refresh listings
+
+on:
+  schedule:
+    # every six hours, offset off the hour so it does not queue with everyone else
+    - cron: '17 */6 * * *'
+  workflow_dispatch: {}
+
+concurrency:
+  group: refresh-market-data
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      - name: Fetch listings
+        env:
+          WYNNVENTORY_KEY: ${{ secrets.WYNNVENTORY_KEY }}
+        run: |
+          pnpm build:listings
+          pnpm build:gather
+
+      - name: Commit if anything moved
+        run: |
+          git config user.name  'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          if git diff --quiet -- src/data; then
+            echo 'no change - the market said the same thing it said last time'
+            exit 0
+          fi
+          git add src/data
+          git commit -m 'data: refresh listing snapshots'
+          git push

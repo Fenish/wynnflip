@@ -32,9 +32,32 @@ Node 22 or newer (declared in `engines`). pnpm is the package manager —
 `pnpm-lock.yaml` is the only lockfile, deliberately.
 
 The page is ISR: `revalidate` is one hour, set in `src/lib/refresh.ts` so the
-page and the label in the header cannot disagree. `next.config.ts` raises
+page, the price-fetch TTL and the label in the header cannot disagree. Next
+takes the lowest of a route's `revalidate` and any fetch inside it, so those
+first two have to be equal - see the comment there. `next.config.ts` raises
 `staticPageGenerationTimeout` to 240s because the first render pulls a few
 hundred prices before it can draw a row.
+
+## How it stays fresh
+
+Two layers, and only one of them looks after itself.
+
+**Live** — the page regenerates at most hourly, on the first visit after the
+window expires; opening an item re-checks that one item against the API with no
+cache. Nothing to run, nothing to schedule.
+
+**The committed fallback** — `src/data/*.json` is baked into the deploy and
+would otherwise age forever, which matters because it is exactly what the board
+falls back to when the feed is quiet. `.github/workflows/` refetches it on a
+schedule and pushes only when something moved, which redeploys:
+
+| workflow | when | why that often |
+|---|---|---|
+| `refresh-data.yml` | every 6h | listings change all day; a run costs ~470 quick calls |
+| `refresh-history.yml` | daily, 03:41 | history is daily data and each call is ~4.5s |
+
+Both need `WYNNVENTORY_KEY` as a repository secret. Run either by hand from the
+Actions tab.
 
 ## Refreshing the committed data
 
