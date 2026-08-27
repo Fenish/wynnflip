@@ -57,6 +57,29 @@ const EMPTY: Record<Mode, { head: string; body: string }> = {
  },
 };
 
+const REPO = "https://github.com/Fenish/wynnlytics";
+
+/**
+ * GitHub's own mark, inlined.
+ *
+ * One 18px glyph is not worth an icon dependency, and the header is the only
+ * place it appears. `currentColor` so it takes the parchment ink like every
+ * other mark in that strip.
+ */
+function GitHubMark() {
+ return (
+  <svg
+   width="18"
+   height="18"
+   viewBox="0 0 16 16"
+   fill="currentColor"
+   aria-hidden
+  >
+   <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z" />
+  </svg>
+ );
+}
+
 const NO_FILTER: GatherFilter = {
  profs: [],
  maxLevel: ALL_LEVELS,
@@ -260,12 +283,25 @@ export function MarketBoard({ data }: { data: Board }) {
         biased toward the oldest sighting on the board and disagreed with the
         SEEN column two inches below it - the chrome said 5h while the top row
         said 2h. Per-row sighting age is SEEN's job; this is the page's. */}
-    <span className="ml-auto self-center pr-1 text-right text-[11.5px] text-ink/85">
+    <span className="ml-auto self-center text-right text-[11.5px] text-ink/85">
      <span className="tnum">{fetched}</span>
      <span className="hidden sm:inline">
       {" "}· refreshes every {REVALIDATE_LABEL}
      </span>
     </span>
+
+    <a
+     href={REPO}
+     target="_blank"
+     rel="noreferrer"
+     title="Source on GitHub"
+     /* 40px of tappable area on a phone, where this sits in a wrapped header
+        and a thumb has to find it; tightened once there is a cursor. */
+     className="grid size-10 shrink-0 place-items-center self-center rounded-sm text-ink/70 transition-colors hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink sm:size-7"
+    >
+     <span className="sr-only">Source on GitHub</span>
+     <GitHubMark />
+    </a>
    </header>
 
    <div className="flex min-h-0 flex-1">
