@@ -2,9 +2,11 @@
 
 import { useId, useState } from "react";
 
-import { day, money } from "@/lib/format";
+import { day } from "@/lib/format";
 import { THIN_DAY } from "@/lib/scoring";
 import type { MarketDay } from "@/lib/types";
+
+import { Money, useMoney } from "./Denomination";
 
 // Sized close to the width it actually renders at, so strokes, dots and text
 // are not scaled up into thick chunky shapes.
@@ -27,6 +29,7 @@ const GAP = 12; // between the price plot and the volume strip
  * so. Thin days are drawn hollow and amber for the same reason.
  */
 export function PriceChart({ days }: { days: MarketDay[] }) {
+ const { money } = useMoney();
  const id = useId();
  const [hover, setHover] = useState<number | null>(null);
 
@@ -71,9 +74,11 @@ export function PriceChart({ days }: { days: MarketDay[] }) {
       gridline and the very day it was describing. */}
   <div className="mb-1.5 flex flex-wrap items-baseline gap-x-4 gap-y-1 text-[12.5px]">
    <span className="mr-auto text-muted">{day(active.date)}</span>
-   <span className="tnum font-semibold text-money">{money(active.median)}</span>
+   <span className="tnum font-semibold text-money">
+    <Money value={active.median} />
+   </span>
    <span className="tnum text-faint">
-    {money(active.low)} &ndash; {money(active.high)}
+    <Money value={active.low} /> &ndash; <Money value={active.high} />
    </span>
    <span
     className={`tnum ${active.count < THIN_DAY ? "text-caution" : "text-faint"}`}

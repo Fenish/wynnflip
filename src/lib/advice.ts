@@ -1,6 +1,14 @@
-import { money } from './format'
+
 import { pickBuy, sellFloor } from './scoring'
 import type { Priced } from './types'
+
+/**
+ * How to write a price.
+ *
+ * Passed in rather than imported so this prose follows the reader's choice of
+ * plain numbers or emerald denominations. It is the same figure either way.
+ */
+export type Fmt = (n: number | null | undefined) => string
 
 /**
  * Turning the numbers into an instruction.
@@ -41,7 +49,7 @@ export interface Advice {
  * Buying: someone has posted a stack for roughly what one costs. You buy it
  * and become the cheapest seller.
  */
-export function flipAdvice(row: Priced, now: number): Advice {
+export function flipAdvice(row: Priced, now: number, money: Fmt): Advice {
   // Chosen here rather than taken from the row: the panel re-fetches listings
   // live and re-sorts them by price, which would otherwise hand back the stale
   // cheap stack the ranking had already rejected.
@@ -66,7 +74,7 @@ export function flipAdvice(row: Priced, now: number): Advice {
 }
 
 /** Farming: where to stand, and what one drop really fetches today. */
-export function farmAdvice(row: Priced): Advice {
+export function farmAdvice(row: Priced, money: Fmt): Advice {
   const where = row.mobs[0]
   const spot = row.spots[0]
   const at = spot ? `${spot[0]}, ${spot[1]}, ${spot[2]}` : null
@@ -88,8 +96,13 @@ export function farmAdvice(row: Priced): Advice {
   }
 }
 
-export function advise(row: Priced, mode: 'farm' | 'flip', now: number): Advice {
-  return mode === 'flip' ? flipAdvice(row, now) : farmAdvice(row)
+export function advise(
+  row: Priced,
+  mode: 'farm' | 'flip',
+  now: number,
+  money: Fmt,
+): Advice {
+  return mode === 'flip' ? flipAdvice(row, now, money) : farmAdvice(row, money)
 }
 
 /**

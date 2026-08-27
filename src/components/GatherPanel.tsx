@@ -1,10 +1,11 @@
 "use client";
 
 import { gatherSpeed } from "@/lib/advice";
-import { money, when } from "@/lib/format";
+import { when } from "@/lib/format";
 import { profession, stars } from "@/lib/professions";
 import type { GatherRow } from "@/lib/types";
 
+import { Money, Prose, useMoney } from "./Denomination";
 import { PriceChart } from "./PriceChart";
 import { ProfIcon } from "./ProfIcon";
 import { Slot } from "./Slot";
@@ -27,6 +28,7 @@ export function GatherPanel({
  row: GatherRow;
  onClose?: () => void;
 }) {
+ const { money } = useMoney();
  const p = profession(row.profession);
  const speed = gatherSpeed(row.sold);
 
@@ -76,15 +78,21 @@ export function GatherPanel({
        <p>
         List at{" "}
         <span className="tnum font-semibold text-money">
-         {money(row.price)}
+         <Money value={row.price} />
         </span>{" "}
         each - that is the cheapest anyone is asking, and you have to go under
         it to sell today. Ten of them is{" "}
-        <span className="tnum text-money">{money(row.price * 10)}</span>, a
+        <span className="tnum text-money">
+         <Money value={row.price * 10} />
+        </span>, a
         hundred is{" "}
-        <span className="tnum text-money">{money(row.price * 100)}</span>.
+        <span className="tnum text-money">
+         <Money value={row.price * 100} />
+        </span>.
        </p>
-       <p className={speed.tone}>{speed.line}</p>
+       <p className={speed.tone}>
+        <Prose>{speed.line}</Prose>
+       </p>
       </div>
      </section>
 
@@ -99,20 +107,27 @@ export function GatherPanel({
         return (
          <div
           key={`${l.at}-${i}`}
-          className={`flex items-baseline gap-3 px-3 py-1.5 text-[13px] ${
+          /* see DetailPanel: fixed cells cannot hold a three-chip price */
+          className={`grid grid-cols-[max-content_auto_1fr_max-content] items-baseline gap-x-3 px-3 py-1.5 text-[13px] ${
            sets ? "bg-money/10" : "bg-surface"
           }`}
          >
           <span
-           className={`tnum w-20 shrink-0 font-medium ${sets ? "text-money" : ""}`}
+           className={`tnum font-medium ${sets ? "text-money" : ""}`}
           >
-           {money(l.unit)}
+           <Money value={l.unit} />
           </span>
           <span className="text-faint">each</span>
-          <span className="tnum ml-auto shrink-0 text-muted">
-           {l.amount > 1 ? `${l.amount} for ${money(l.total)}` : "single"}
+          <span className="tnum text-right text-muted">
+           {l.amount > 1 ? (
+            <>
+             {l.amount} for <Money value={l.total} />
+            </>
+           ) : (
+            "single"
+           )}
           </span>
-          <span className="w-16 shrink-0 text-right text-[11.5px] text-faint">
+          <span className="text-right text-[11.5px] whitespace-nowrap text-faint">
            {when(l.at, row.builtAt)}
           </span>
          </div>
@@ -145,7 +160,7 @@ export function GatherPanel({
           className="flex items-baseline gap-3 bg-surface px-3 py-1.5 text-[13px]"
          >
           <span className="w-10 shrink-0 text-tier-1">{stars(s.tier)}</span>
-          <span className="tnum font-medium">{money(s.price)}</span>
+          <span className="tnum font-medium"><Money value={s.price} /></span>
           <span className="text-faint">each</span>
           <span className={`tnum ml-auto ${gatherSpeed(s.sold).tone}`}>
            {s.sold.toLocaleString("en-US")} sold/day

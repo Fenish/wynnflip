@@ -3,11 +3,12 @@
 import { useEffect, useState } from "react";
 
 import { advise } from "@/lib/advice";
-import { idRange, idSign, money, when } from "@/lib/format";
+import { idRange, idSign, when } from "@/lib/format";
 import { CONSUMABLE, idMeta } from "@/lib/ids";
 import { FRESH_HOURS, hoursOld, pickBuy } from "@/lib/scoring";
 import type { Listing, Priced } from "@/lib/types";
 
+import { Money, Prose, useMoney } from "./Denomination";
 import { PriceChart } from "./PriceChart";
 import { Slot } from "./Slot";
 
@@ -43,6 +44,7 @@ export function DetailPanel({
  builtAt: number;
  onClose?: () => void;
 }) {
+ const { money } = useMoney();
  const [extra, setExtra] = useState<{
   for: string;
   data: Sidecar;
@@ -67,7 +69,7 @@ export function DetailPanel({
  const shown = open.slice(0, SHOWN);
  const rest = open.length - shown.length;
  const now = extra?.for === row.name ? extra.at : builtAt;
- const plan = advise({ ...row, open }, mode, now);
+ const plan = advise({ ...row, open }, mode, now, money);
  // Highlight what the advice actually points at. Highlighting the cheapest
  // would put the badge on an 18-hour-old sighting - the one most likely gone.
  const buy = mode === "flip" ? pickBuy(open, now) : undefined;
@@ -107,12 +109,12 @@ export function DetailPanel({
      {/* the answer, before any of the evidence for it */}
      <section className="border-l-2 border-l-tier-1 bg-white/[0.035] px-4 py-3.5">
       <p className="font-hand text-[19px] leading-snug text-parch">
-       {plan.headline}
+       <Prose>{plan.headline}</Prose>
       </p>
       <div className="mt-2 grid gap-1.5">
        {plan.detail.map((line) => (
         <p key={line} className="text-[13px] leading-relaxed text-muted">
-         {line}
+         <Prose>{line}</Prose>
         </p>
        ))}
       </div>
@@ -127,21 +129,30 @@ export function DetailPanel({
        {shown.map((l, i) => (
         <div
          key={`${l.at}-${i}`}
-         className={`flex items-baseline gap-3 px-3 py-2 text-[13px] ${
+         /* A grid, not a flex row: in emerald mode a price is three chips
+            wide and fixed-width cells overflowed into their neighbours. The
+            columns size to the widest row and everything stays in line. */
+         className={`grid grid-cols-[max-content_auto_1fr_max-content] items-baseline gap-x-3 px-3 py-2 text-[13px] ${
           l === buy ? "bg-money/10" : "bg-surface"
          }`}
         >
          <span
-          className={`tnum w-20 shrink-0 font-semibold ${l === buy ? "text-money" : "text-text"}`}
+          className={`tnum font-semibold ${l === buy ? "text-money" : "text-text"}`}
          >
-          {money(l.unit)}
+          <Money value={l.unit} />
          </span>
          <span className="text-faint">each</span>
-         <span className="tnum ml-auto shrink-0 text-muted">
-          {l.amount > 1 ? `${l.amount} for ${money(l.total)}` : "single"}
+         <span className="tnum text-right text-muted">
+          {l.amount > 1 ? (
+            <>
+             {l.amount} for <Money value={l.total} />
+            </>
+           ) : (
+            "single"
+           )}
          </span>
          <span
-          className={`w-20 shrink-0 text-right text-[11.5px] ${
+          className={`text-right text-[11.5px] whitespace-nowrap ${
            stale(l.at, now) ? "text-caution" : "text-faint"
           }`}
           title={
@@ -156,9 +167,13 @@ export function DetailPanel({
        ))}
       </div>
       <p className="mt-1.5 text-[12.5px] leading-relaxed text-faint">
-       {rest > 0
-        ? `${rest} more, up to ${money(open[open.length - 1].unit)} each.`
-        : "That is everything on the board."}{" "}
+       {rest > 0 ? (
+        <>
+         {rest} more, up to <Money value={open[open.length - 1].unit} /> each.
+        </>
+       ) : (
+        "That is everything on the board."
+       )}{" "}
        Amber times are sightings older than {FRESH_HOURS} hours; those listings have
        often been bought already. Prices are per ingredient; the quantity beside them is how many that
        seller has.

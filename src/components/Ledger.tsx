@@ -3,12 +3,13 @@
 import { Children, Fragment, isValidElement, type ReactNode } from "react";
 
 import { gatherSpeed, liquidity } from "@/lib/advice";
-import { ago, compact, money } from "@/lib/format";
+import { ago } from "@/lib/format";
 import { profession } from "@/lib/professions";
 import { sellFloor } from "@/lib/scoring";
 import { stars, tierTone } from "@/lib/tiers";
 import type { GatherRow, Priced } from "@/lib/types";
 
+import { Money, useMoney, type Denom } from "./Denomination";
 import { Slot } from "./Slot";
 
 /**
@@ -64,6 +65,8 @@ export interface Col {
 }
 
 export function LedgerHead({ cols, grid }: { cols: Col[]; grid: string }) {
+ const { denom } = useMoney();
+ const hide = hideAt(denom);
  return (
   <div
    className={`sticky top-0 z-10 grid items-end gap-x-2 border-b md:gap-x-3 border-line bg-ground/95 pr-2 pb-1.5 text-[10.5px] tracking-wide text-faint ${grid}`}
@@ -71,7 +74,7 @@ export function LedgerHead({ cols, grid }: { cols: Col[]; grid: string }) {
    {cols.map((c, i) => (
     <span
      key={c.label + i}
-     className={`${c.right ? "text-right" : ""} ${c.wide ? "hidden sm:block" : ""}`}
+     className={`${c.right ? "text-right" : ""} ${c.wide ? hide : ""}`}
     >
      {c.label}
     </span>
@@ -89,9 +92,10 @@ function Cell({
  right?: boolean;
  wide?: boolean;
 }) {
+ const { denom } = useMoney();
  return (
   <span
-   className={`truncate ${right ? "text-right" : ""} ${wide ? "hidden sm:block" : ""}`}
+   className={`truncate ${right ? "text-right" : ""} ${wide ? hideAt(denom) : ""}`}
   >
    {children}
   </span>
@@ -178,14 +182,62 @@ function LedgerRow({
  * columns at once. The minimums are what the ten need at `sm` (515px of a
  * 592px pane at 640, where fixed tracks overflowed by 67).
  */
-export const FLIP_GRID =
- "grid-cols-[3px_26px_minmax(70px,1fr)_74px_58px] " +
- "sm:grid-cols-[3px_26px_minmax(70px,1.7fr)_minmax(52px,1fr)_minmax(52px,1fr)_minmax(40px,0.75fr)_minmax(56px,1fr)_minmax(64px,1.05fr)_minmax(46px,0.8fr)_minmax(34px,0.65fr)] " +
- "md:grid-cols-[3px_28px_minmax(90px,1.7fr)_minmax(58px,1fr)_minmax(58px,1fr)_minmax(44px,0.75fr)_minmax(64px,1fr)_minmax(74px,1.05fr)_minmax(50px,0.8fr)_minmax(38px,0.65fr)]";
-export const FARM_GRID =
- "grid-cols-[3px_26px_minmax(70px,1fr)_74px] sm:grid-cols-[3px_28px_minmax(90px,14rem)_minmax(0,1fr)_84px_62px_74px]";
-export const GATHER_GRID =
- "grid-cols-[3px_26px_minmax(70px,1fr)_74px_62px] sm:grid-cols-[3px_28px_minmax(90px,16rem)_minmax(0,1fr)_84px_78px_58px]";
+/**
+ * One grid definition per mode, shared by the header and every row.
+ *
+ * It has to be per denomination too. Every row is its own grid rather than one
+ * container, so the track sizes come from the string alone - use `max-content`
+ * and each row measures itself, which drifted the columns 84px to 120px down
+ * the table and threw away the only thing a table is for. Emerald mode simply
+ * needs wider numeric tracks: three marks and three counts is about 120px
+ * where a plain number is 60.
+ */
+type Grids = Record<Denom, string>;
+
+const FLIP: Grids = {
+ number:
+  "grid-cols-[3px_26px_minmax(70px,1fr)_74px_58px] " +
+  "sm:grid-cols-[3px_26px_minmax(70px,1.7fr)_minmax(52px,1fr)_minmax(52px,1fr)_minmax(40px,0.75fr)_minmax(56px,1fr)_minmax(64px,1.05fr)_minmax(46px,0.8fr)_minmax(34px,0.65fr)] " +
+  "md:grid-cols-[3px_28px_minmax(90px,1.7fr)_minmax(58px,1fr)_minmax(58px,1fr)_minmax(44px,0.75fr)_minmax(64px,1fr)_minmax(74px,1.05fr)_minmax(50px,0.8fr)_minmax(38px,0.65fr)]",
+ /*
+  * Ten columns of denominations want about 733px and `sm` begins at 640, so
+  * the full set waits for `md`. The wide cells hide on the same breakpoint -
+  * see `hideAt` - or the grid would have five tracks and ten children.
+  */
+ emerald:
+  "grid-cols-[3px_26px_minmax(64px,1fr)_112px_50px] " +
+  "md:grid-cols-[3px_28px_minmax(70px,1.3fr)_100px_100px_minmax(38px,0.6fr)_100px_106px_minmax(44px,0.7fr)_minmax(32px,0.6fr)]",
+};
+
+const FARM: Grids = {
+ number:
+  "grid-cols-[3px_26px_minmax(70px,1fr)_74px] sm:grid-cols-[3px_28px_minmax(90px,14rem)_minmax(0,1fr)_84px_62px_74px]",
+ emerald:
+  "grid-cols-[3px_26px_minmax(70px,1fr)_124px] sm:grid-cols-[3px_28px_minmax(90px,14rem)_minmax(0,1fr)_128px_62px_74px]",
+};
+
+const GATHER: Grids = {
+ number:
+  "grid-cols-[3px_26px_minmax(70px,1fr)_74px_62px] sm:grid-cols-[3px_28px_minmax(90px,16rem)_minmax(0,1fr)_84px_78px_58px]",
+ emerald:
+  "grid-cols-[3px_26px_minmax(70px,1fr)_124px_58px] sm:grid-cols-[3px_28px_minmax(90px,16rem)_minmax(0,1fr)_128px_78px_58px]",
+};
+
+/**
+ * Where the columns marked `wide` appear.
+ *
+ * It has to match the breakpoint the grid string switches on, or `display:
+ * none` removes a grid item while its track stays and every column after it
+ * slides one place across. Emerald mode needs the extra width, so it waits.
+ */
+export function hideAt(denom: Denom): string {
+ return denom === "emerald" ? "hidden md:block" : "hidden sm:block";
+}
+
+/** The grid for a mode, in the spelling the reader has chosen. */
+export function gridFor(mode: "farm" | "flip" | "gather", denom: Denom): string {
+ return (mode === "flip" ? FLIP : mode === "farm" ? FARM : GATHER)[denom];
+}
 
 /* ---------------------------------------------------------------- flip / farm */
 
@@ -225,6 +277,7 @@ export function ItemRow({
  active: boolean;
  onOpen: () => void;
 }) {
+ const { money, denom } = useMoney();
  const sells = liquidity(row.listings);
  const buy = row.open[0];
  const spread = row.resell && buy ? row.resell / buy.unit : null;
@@ -249,7 +302,7 @@ export function ItemRow({
  return (
   <LedgerRow
    label={label}
-   grid={mode === "flip" ? FLIP_GRID : FARM_GRID}
+   grid={gridFor(mode, denom)}
    cols={mode === "flip" ? FLIP_COLS : FARM_COLS}
    active={active}
    onOpen={onOpen}
@@ -267,12 +320,12 @@ export function ItemRow({
      <>
       <Cell right wide>
        <span className="tnum text-[12.5px] text-muted">
-        {buy ? money(buy.unit) : "·"}
+        {buy ? <Money value={buy.unit} /> : "·"}
        </span>
       </Cell>
       <Cell right wide>
        <span className="tnum text-[12.5px]">
-        {row.resell ? money(row.resell) : "·"}
+        {row.resell ? <Money value={row.resell} /> : "·"}
        </span>
       </Cell>
       <Cell right wide>
@@ -284,12 +337,12 @@ export function ItemRow({
       </Cell>
       <Cell right wide>
        <span className="tnum text-[12.5px] text-muted">
-        {buy ? compact(buy.total) : "·"}
+        {buy ? <Money value={buy.total} /> : "·"}
        </span>
       </Cell>
       <span className="text-right">
        <span className="tnum text-[13.5px] font-semibold text-money">
-        +{compact(row.gain)}
+        <Money value={row.gain} plus />
        </span>
       </span>
       <Cell right wide>
@@ -317,7 +370,7 @@ export function ItemRow({
       </Cell>
       <span className="text-right">
        <span className="tnum text-[13.5px] font-semibold text-money">
-        {compact(sellFloor(row.open))}
+        <Money value={sellFloor(row.open)} />
        </span>
       </span>
       <Cell right wide>
@@ -353,6 +406,7 @@ export function GatherLedgerRow({
  active: boolean;
  onOpen: () => void;
 }) {
+ const { money, denom } = useMoney();
  const p = profession(row.profession);
  const speed = gatherSpeed(row.sold);
  const label =
@@ -363,7 +417,7 @@ export function GatherLedgerRow({
  return (
   <LedgerRow
    label={label}
-   grid={GATHER_GRID}
+   grid={gridFor("gather", denom)}
    cols={GATHER_COLS}
    active={active}
    onOpen={onOpen}
@@ -385,7 +439,7 @@ export function GatherLedgerRow({
 
     <span className="text-right">
      <span className="tnum text-[13.5px] font-semibold text-money">
-      {compact(row.price)}
+      <Money value={row.price} />
      </span>
     </span>
 

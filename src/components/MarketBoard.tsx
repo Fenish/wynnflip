@@ -7,17 +7,16 @@ import { ago } from "@/lib/format";
 import { REVALIDATE_LABEL } from "@/lib/refresh";
 import type { Board, GatherRow } from "@/lib/types";
 
+import { DenomProvider, DenomSwitch, useMoney } from "./Denomination";
 import { DetailPanel } from "./DetailPanel";
 import { ALL_LEVELS, GatherFilters, type GatherFilter } from "./GatherFilters";
 import { GatherPanel } from "./GatherPanel";
 import {
  FARM_COLS,
- FARM_GRID,
  FLIP_COLS,
- FLIP_GRID,
  GATHER_COLS,
- GATHER_GRID,
  GatherLedgerRow,
+ gridFor,
  ItemRow,
  LedgerHead,
 } from "./Ledger";
@@ -157,6 +156,15 @@ function gatherKey(row: GatherRow) {
  * prose cannot. The verbs moved into the header and the numbers lined up.
  */
 export function MarketBoard({ data }: { data: Board }) {
+ return (
+  <DenomProvider>
+   <Ledger data={data} />
+  </DenomProvider>
+ );
+}
+
+/** Everything below the provider, so every figure can read the choice. */
+function Ledger({ data }: { data: Board }) {
  const [mode, setMode] = useState<Mode>("flip");
 
  // What the panel is showing. Null still resolves to the top row - the page
@@ -169,6 +177,8 @@ export function MarketBoard({ data }: { data: Board }) {
  const [opened, setOpened] = useState(false);
 
  const [filter, setFilter] = useState<GatherFilter>(NO_FILTER);
+
+ const { denom } = useMoney();
 
  // Read the clock after mount, not during render: the page is static, so the
  // server has no idea how long it will sit in the cache before you load it.
@@ -309,9 +319,14 @@ export function MarketBoard({ data }: { data: Board }) {
      className={`flex min-w-0 flex-col lg:flex-1 ${opened ? "hidden lg:flex" : "flex-1"}`}
     >
      <div className="px-5 pt-4 lg:px-8">
-      <p className="max-w-[72ch] text-[13px] leading-relaxed text-muted">
-       {MODES[mode].lead}
-      </p>
+      <div className="flex items-start justify-between gap-6">
+       <p className="max-w-[72ch] text-[13px] leading-relaxed text-muted">
+        {MODES[mode].lead}
+       </p>
+       {/* Beside the table it changes rather than up in the chrome, which is
+           for the site, not for how a price is spelled. */}
+       <DenomSwitch />
+      </div>
 
       {gathering && (
        <GatherFilters
@@ -333,7 +348,7 @@ export function MarketBoard({ data }: { data: Board }) {
       <div className="mt-3 min-h-0 flex-1 overflow-y-auto px-5 pb-6 lg:px-8">
        <LedgerHead
         cols={gathering ? GATHER_COLS : mode === "flip" ? FLIP_COLS : FARM_COLS}
-        grid={gathering ? GATHER_GRID : mode === "flip" ? FLIP_GRID : FARM_GRID}
+        grid={gridFor(gathering ? "gather" : mode, denom)}
        />
        {gathering
         ? gather.map((g) => (
@@ -364,7 +379,17 @@ export function MarketBoard({ data }: { data: Board }) {
     <aside
      className={`min-w-0 shrink-0 p-3 ${
       opened ? "flex-1 lg:flex-none" : "hidden"
-     } ${material || row ? "lg:block" : "lg:hidden"} lg:w-[440px] xl:w-[520px]`}
+     } ${
+      material || row
+       ? // Denominations are wider than plain numbers, so the panel has to
+         // wait for a viewport that can hold both it and the full table -
+         // measured: the ten emerald columns need ~800px, the panel takes
+         // 520, and the padding another 72.
+         denom === "emerald"
+         ? "min-[1400px]:block"
+         : "lg:block"
+       : "lg:hidden"
+     } lg:w-[520px] xl:w-[620px]`}
     >
      {material ? (
       <div className="tip h-full overflow-hidden">

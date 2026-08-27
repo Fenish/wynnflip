@@ -121,5 +121,6 @@ happened on a given day.
 ## Credit
 
 Prices and listings from [WynnVentory](https://www.wynnventory.com). Item and
-mob data from the [official Wynncraft API](https://docs.wynncraft.com). Sprites
-from Wynncraft's item guide. Not affiliated with Wynncraft.
+mob data from the [official Wynncraft API](https://docs.wynncraft.com). Item
+sprites from Wynncraft's item guide; the currency marks for emerald, block,
+liquid emerald and stack are the game's own. Not affiliated with Wynncraft.
